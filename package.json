@@ -16,7 +16,7 @@
     "test": "truffle test"
   },
   "engines": {
-    "node": "10.x"
+    "node": "12.x"
   },
   "author": "",
   "license": "ISC",
