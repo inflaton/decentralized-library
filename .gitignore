@@ -9,3 +9,4 @@ artifacts
 build
 .vscode
 .env
+.tronbox

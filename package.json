@@ -1,5 +1,5 @@
 {
-  "name": "ethindia-workshop",
+  "name": "d-library-tron",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,10 +8,10 @@
     "postinstall": "cd dapp-ui && npm install && npm run build",
     "test:ethereum": "ganache-cli -m 'layer post chase message demise fresh resource beyond bulb rose garden kite'",
     "compile": "tronbox compile",
-    "deploy": "source .env && tronbox migrate --reset --network mainnet",
+    "deploy": "tronbox migrate --reset --network mainnet",
     "shasta": "tronbox migrate --reset --network shasta",
-    "nile": "source .env && tronbox migrate --reset --network nile",
-    "dev": "source .env && tronbox migrate --reset --network development",
+    "nile": "tronbox migrate --reset --network nile",
+    "dev": "tronbox migrate --reset --network development",
     "test": "truffle test"
   },
   "engines": {
@@ -20,6 +20,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv-flow": "^3.2.0",
     "ganache-cli": "^6.5.1",
     "nuxt": "^2.15.7"
   }
