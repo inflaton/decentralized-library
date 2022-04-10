@@ -1,0 +1,9 @@
+package-lock.json
+node_modules
+.vscode
+dist
+.nuxt
+artifacts
+.eslintcache
+build
+.vscode
