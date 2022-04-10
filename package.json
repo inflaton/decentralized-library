@@ -14,11 +14,11 @@
     "dev": "source .env && tronbox migrate --reset --network development",
     "test": "truffle test"
   },
+  "engines": {
+    "node": "14.x"
+  },
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "truffle": "^5.0.29"
-  },
   "dependencies": {
     "ganache-cli": "^6.5.1",
     "nuxt": "^2.15.7"
