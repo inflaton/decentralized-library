@@ -50,5 +50,11 @@ export default {
     */
     extend(config, ctx) {
     }
+  },
+  publicRuntimeConfig: {
+    libraryContractAddress: process.env.LIBRARY_CONTRACT_ADDRESS,
+  },
+  privateRuntimeConfig: {
+    myPrivateToken: process.env.PRIVATE_TOKEN
   }
 }

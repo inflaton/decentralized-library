@@ -13,34 +13,33 @@
 
 <script>
 import card from "~/components/card.vue";
-import { fetchAllBooks ,setLibraryContract, getTronWeb } from "~/plugins/utils"
-import { sampleTx } from "~/plugins/walletConnect"
+import { fetchAllBooks, setLibraryContract, getTronWeb } from "~/plugins/utils";
+import { sampleTx } from "~/plugins/walletConnect";
 
 export default {
   components: {
-    card
+    card,
   },
   async mounted() {
-    // get tronWeb object 
+    // get tronWeb object
     getTronWeb();
     // init contract object
-    await setLibraryContract();
+    const { libraryContractAddress } = this.$config;
+    await setLibraryContract(libraryContractAddress);
     // fetch all books
     const books = await fetchAllBooks();
     this.posts = books;
-
   },
   data() {
     return {
-      posts: [
-      ]
+      posts: [],
     };
   },
   methods: {
     async sendTx() {
-      await sampleTx()
-    }
-  }
+      await sampleTx();
+    },
+  },
 };
 </script>
 

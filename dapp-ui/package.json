@@ -4,7 +4,7 @@
   "description": "Nuxt.js project",
   "private": true,
   "scripts": {
-    "dev": "nuxt",
+    "dev": "source ../.env && nuxt",
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate"

@@ -7,3 +7,4 @@ artifacts
 .eslintcache
 build
 .vscode
+.env
