@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "cd dapp-ui && npm start",
-    "build": "cd dapp-ui && npm install && npm run build",
+    "postinstall": "cd dapp-ui && npm install && npm run build",
     "test:ethereum": "ganache-cli -m 'layer post chase message demise fresh resource beyond bulb rose garden kite'",
     "compile": "tronbox compile",
     "deploy": "source .env && tronbox migrate --reset --network mainnet",
