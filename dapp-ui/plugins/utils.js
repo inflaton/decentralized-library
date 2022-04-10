@@ -66,12 +66,13 @@ export async function fetchAllBooks() {
     const book = await bookRentContract.books(i).call()
     if (book.name != "") // filter the deleted books
     {
+      // console.log(`book ${i}: ${JSON.stringify(book)}`);
       books.push(
-        { id: i, name: book.name, description: book.description, price: window.tronWeb.fromSun(book.price) }
+        { id: i, name: book.name, description: book.description, available: book.valid, price: window.tronWeb.fromSun(book.price) }
       )
     }
-
   }
+  console.log(`books: ${JSON.stringify(books)}`);
   return books
 
 }
