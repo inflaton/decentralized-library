@@ -21,7 +21,6 @@
   "license": "ISC",
   "dependencies": {
     "dotenv-flow": "^3.2.0",
-    "ganache-cli": "^6.5.1",
-    "nuxt": "^2.15.7"
+    "ganache-cli": "^6.5.1"
   }
 }
