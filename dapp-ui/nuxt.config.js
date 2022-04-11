@@ -52,7 +52,7 @@ export default {
     }
   },
   publicRuntimeConfig: {
-    libraryContractAddress: process.env.LIBRARY_CONTRACT_ADDRESS,
+    libraryContractAddress: process.env.LOCAL_MODE === "true" ? process.env.LIBRARY_CONTRACT_ADDRESS_LOCAL : process.env.LIBRARY_CONTRACT_ADDRESS,
   },
   privateRuntimeConfig: {
     myPrivateToken: process.env.PRIVATE_TOKEN
