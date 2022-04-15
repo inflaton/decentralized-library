@@ -1,12 +1,17 @@
 //import LibraryABI from './libraryABI'
 
 let account = null
-let libraryContract
+let web3 = null
 let bookRentContract = null
 
 
 export const accountAddress = () => {
   return account
+}
+
+export function initWeb3() {
+  getTronWeb();
+  web3 = window.tronWeb;
 }
 
 export function getTronWeb() {
@@ -25,7 +30,7 @@ export async function setLibraryContract(libraryContractAddress) {
   // TODO: abtain contract Object
   // const libraryContractAddress = libraryConfig.libraryContractAddress;
   console.log("libraryContractAddress: " + libraryContractAddress);
-  bookRentContract = await window.tronWeb.contract().at(libraryContractAddress);
+  bookRentContract = await web3.contract().at(libraryContractAddress);
 }
 
 

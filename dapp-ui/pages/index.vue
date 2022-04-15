@@ -13,7 +13,7 @@
 
 <script>
 import card from "~/components/card.vue";
-import { fetchAllBooks, setLibraryContract, getTronWeb } from "~/plugins/utils";
+import { fetchAllBooks, setLibraryContract, initWeb3 } from "~/plugins/utils";
 import { sampleTx } from "~/plugins/walletConnect";
 
 export default {
@@ -22,7 +22,7 @@ export default {
   },
   async mounted() {
     // get tronWeb object
-    getTronWeb();
+    initWeb3();
     // init contract object
     const { libraryContractAddress } = this.$config;
     await setLibraryContract(libraryContractAddress);
