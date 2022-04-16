@@ -7,12 +7,15 @@
     "start": "cd dapp-ui && npm start",
     "postinstall": "cd dapp-ui && npm install && npm run build",
     "test:ethereum": "ganache-cli -m 'layer post chase message demise fresh resource beyond bulb rose garden kite'",
-    "compile": "tronbox compile",
-    "deploy": "tronbox migrate --reset --network mainnet",
-    "shasta": "tronbox migrate --reset --network shasta",
-    "nile": "tronbox migrate --reset --network nile",
-    "dev": "tronbox migrate --reset --network development",
-    "test": "truffle test"
+    "compile": "truffle compile",
+    "test": "truffle test",
+    "deploy": "ropsten migrate --reset --network mainnet",
+    "ropsten": "truffle migrate --reset --network ropsten",
+    "dev": "truffle migrate --reset --network development",
+    "tron:deploy": "tronbox migrate --reset --network mainnet",
+    "tron:shasta": "tronbox migrate --reset --network shasta",
+    "tron:nile": "tronbox migrate --reset --network nile",
+    "tron:dev": "tronbox migrate --reset --network development"
   },
   "engines": {
     "node": "12.x"
@@ -20,6 +23,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@truffle/hdwallet-provider": "^2.0.6",
     "dotenv-flow": "^3.2.0",
     "ganache-cli": "^6.5.1"
   }
