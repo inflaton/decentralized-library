@@ -1,5 +1,6 @@
 import BcExplorer from './BcExplorer'
 import UsersContract from '../assets/Users.json';
+import LibraryContract from '../assets/Library.json';
 
 export default {
   data() {
@@ -44,6 +45,9 @@ export default {
                 .then(_res => {
                   this.bcConnectionError = false;
                   this.bcConnected = this.blockchainIsConnected();
+                  if (this.bcConnected) {
+                    window.bc.initWithContractJson(process.env.VUE_APP_PROVIDER_ADDRESS_URL, LibraryContract, process.env.VUE_APP_LIBRARY_CONTRACT_ADDRESS, "Library");
+                  }
                 })
                 .catch(_error => {
                   this.showConnectionErrorMessage(error);

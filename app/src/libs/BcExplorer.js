@@ -220,6 +220,7 @@ class BcExplorer {
   initContract(abiArray, contractAddr, contractName) {
     contractName = this.contractDefaultName(contractName);
     this.contractInst[contractName] = this.web3().eth.contract(abiArray).at(contractAddr);
+    console.log(`contract with name ${contractName} initialized`);
   }
 
   /**

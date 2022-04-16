@@ -14,7 +14,7 @@
     <table class="table table-striped" v-show="!isLoading">
       <thead class="thead-dark">
         <tr>
-          <th>User ID</th>
+          <th>Book ID</th>
           <th>Name</th>
           <th>Email</th>
           <th>Address</th>
@@ -23,13 +23,13 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="user in users">
-          <td>{{ user[0].toNumber() }}</td>
-          <td>{{ user[1] }}</td>
-          <td>{{ user[2] }}</td>
-          <td>{{ user[3] }}</td>
-          <td>{{ toDate(user[4].toNumber()) }}</td>
-          <td>{{ toDate(user[5].toNumber()) }}</td>
+        <tr v-for="book in books">
+          <td>{{ book[0].toNumber() }}</td>
+          <td>{{ book[1] }}</td>
+          <td>{{ book[2] }}</td>
+          <td>{{ book[3] }}</td>
+          <td>{{ toDate(book[4].toNumber()) }}</td>
+          <td>{{ toDate(book[5].toNumber()) }}</td>
         </tr>
       </tbody>
     </table>
@@ -41,7 +41,7 @@
 import mixin from "../libs/mixinViews";
 
 /**
- * List view component: this component shows list of the registered users
+ * List view component: this component shows list of the registered books
  * and their statuses.
  */
 export default {
@@ -49,8 +49,8 @@ export default {
 
   data() {
     return {
-      users: [], // array that stores all the registered users
-      isLoading: true, // true when the user list is loading form the blockchain
+      books: [], // array that stores all the registered books
+      isLoading: true, // true when the book list is loading form the blockchain
       bcConnected: false, // blockchain is connected ()
       tmoConn: null // contain the intervalID given by setInterval
     };
@@ -58,10 +58,10 @@ export default {
 
   methods: {
     /**
-     * Get the list of the registered users once the connection to the
+     * Get the list of the registered books once the connection to the
      * blockchain is established.
      */
-    getUserList() {
+    getBookList() {
       if (this.blockchainIsConnected()) {
         // it shows the loading message
         this.isLoading = true;
@@ -69,53 +69,53 @@ export default {
         // stopping the interval
         clearInterval(this.tmoConn);
 
-        // getting all the users from the blockchain
-        this.getAllUsers(userProfile => {
+        // getting all the books from the blockchain
+        this.getAllBooks(book => {
           this.isLoading = false;
-          this.users.push(userProfile);
+          this.books.push(book);
         });
       }
     },
 
     /**
-     * It reloads the user list.
+     * It reloads the book list.
      */
     reloadList() {
-      this.users = [];
+      this.books = [];
 
-      this.getUserList();
+      this.getBookList();
     },
 
     /**
-     * Get all users.
+     * Get all books.
      */
-    getAllUsers(callback) {
-      // getting the total number of users stored in the blockchain
-      // calling the method totalUsers from the smart contract
-      window.bc.contract().totalUsers((err, total) => {
+    getAllBooks(callback) {
+      // getting the total number of books stored in the blockchain
+      // calling the method totalBooks from the smart contract
+      window.bc.contract("Library").bookId((_err, total) => {
         var tot = 0;
         if (total) tot = total.toNumber();
-        console.log(`totalUsers: ${tot}`);
+        console.log(`totalBooks: ${tot}`);
 
         if (tot > 0) {
-          // getting the user one by one
+          // getting the book one by one
           for (var i = 1; i <= tot; i++) {
-            window.bc.contract().getUserById.call(i, (error, userProfile) => {
-              callback(userProfile);
+            window.bc.contract().getBookById.call(i, (error, book) => {
+              callback(book);
             });
           } // end for
         } else {
           this.isLoading = false;
         }
-      }); // end totalUsers call
+      }); // end totalBooks call
     }
   }, // end methods
 
   created() {
-    // it tries to get the user list from the blockchian once
+    // it tries to get the book list from the blockchian once
     // the connection is established
     this.tmoConn = setInterval(() => {
-      this.getUserList();
+      this.getBookList();
     }, 1000);
   }
 };
