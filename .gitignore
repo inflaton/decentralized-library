@@ -9,6 +9,7 @@ artifacts
 build
 .vscode
 .env
+.env.*
 .tronbox
 .secret
 *.log

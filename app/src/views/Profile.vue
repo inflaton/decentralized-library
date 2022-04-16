@@ -49,6 +49,7 @@
 
         <p><strong>Address</strong>: {{ userAddressAccount }}</p>
         <p><strong>Balance</strong>: {{ balance }} ETH</p>
+        <p><strong>Network ID</strong>: {{ networkId }}</p>
       </div>
     </div>
 
@@ -81,7 +82,8 @@ export default {
       userId: 0, // user ID from the blockchain
 
       userAddressAccount: "0x0", // address of the user
-      balance: 0, // balance of the user
+      balance: 0, // balance of the user,
+      networkId: 0, // ethereum network ID
 
       tmoConn: null, // contain the intervalID given by setInterval
 
@@ -204,7 +206,7 @@ export default {
     getInfoBc() {
       window.bc.loadInfo().then(info => {
         this.userAddressAccount = info.mainAccount;
-
+        this.networkId = info.networkId;
         this.balance = window.bc.weiToEther(info.balance);
       });
     },

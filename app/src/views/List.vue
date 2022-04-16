@@ -16,7 +16,7 @@
         <tr>
           <th>User ID</th>
           <th>Name</th>
-          <th>Status</th>
+          <th>Email</th>
           <th>Address</th>
           <th>Created At</th>
           <th>Updated At</th>
@@ -95,6 +95,7 @@ export default {
       window.bc.contract().totalUsers((err, total) => {
         var tot = 0;
         if (total) tot = total.toNumber();
+        console.log(`totalUsers: ${tot}`);
 
         if (tot > 0) {
           // getting the user one by one
@@ -103,7 +104,9 @@ export default {
               callback(userProfile);
             });
           } // end for
-        } // end if
+        } else {
+          this.isLoading = false;
+        }
       }); // end totalUsers call
     }
   }, // end methods
