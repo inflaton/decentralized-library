@@ -2,7 +2,17 @@
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <ul class="navbar-nav">
       <router-link tag="li" class="nav-link" to="/" exact>
-        <a>Statuses</a>
+        <a>Books</a>
+      </router-link>
+
+      <router-link
+        tag="li"
+        class="nav-link"
+        to="/users"
+        exact
+        v-show="userIsRegistered"
+      >
+        <a>Users</a>
       </router-link>
 
       <router-link
