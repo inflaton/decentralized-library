@@ -36,7 +36,7 @@ contract Users {
         // NOTE: the first user MUST be emtpy: if you are trying to access to an element
         // of the usersIds mapping that does not exist (like usersIds[0x12345]) you will
         // receive 0, that's why in the first position (with index 0) must be initialized
-        // addUser(address(0x0), "", "");
+        addUser(address(0x0), "", "");
         // Some dummy data
         // addUser(address(0x333333333333), "Leo Brown", "Available");
         // addUser(address(0x111111111111), "John Doe", "Very happy");
@@ -71,20 +71,22 @@ contract Users {
     ) private returns (uint256) {
         // checking if the user is already registered
         uint256 userId = usersIds[_wAddr];
-        require(userId == 0);
+        require(userId == 0, "The user is already registered");
 
         // associating the user wallet address with the new ID
-        uint256 newUserId = users.length + 1;
+        uint256 newUserId = users.length;
         usersIds[_wAddr] = newUserId;
 
         // storing the new user details
-        users[newUserId] = User({
-            name: _userName,
-            email: _email,
-            walletAddress: _wAddr,
-            createdAt: block.timestamp,
-            updatedAt: block.timestamp
-        });
+        users.push(
+            User({
+                name: _userName,
+                email: _email,
+                walletAddress: _wAddr,
+                createdAt: block.timestamp,
+                updatedAt: block.timestamp
+            })
+        );
 
         // emitting the event that a new user has been registered
         emit newUserRegistered(newUserId);
@@ -136,7 +138,7 @@ contract Users {
         )
     {
         // checking if the ID is valid
-        require((_id > 0) || (_id <= users.length));
+        require((_id > 0) && (_id < users.length));
 
         User memory i = users[_id];
 
@@ -178,12 +180,9 @@ contract Users {
         return (usersIds[msg.sender] > 0);
     }
 
-    /**
-     * Return the number of total registered users.
-     */
     function totalUsers() public view returns (uint256) {
         // NOTE: the total registered user is length-1 because the user with
         // index 0 is empty check the contructor: addUser(address(0x0), "", "");
-        return users.length;
+        return users.length - 1;
     }
 }
