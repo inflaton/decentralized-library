@@ -10,35 +10,17 @@
     <h2 v-show="!bcConnected">Not connect to the blockchain: please wait.</h2>
 
     <h2 v-show="isLoading && bcConnected">Loading...</h2>
-
-    <table class="table table-striped" v-show="!isLoading">
-      <thead class="thead-dark">
-        <tr>
-          <th>Book ID</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Address</th>
-          <th>Created At</th>
-          <th>Updated At</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="book in books">
-          <td>{{ book[0].toNumber() }}</td>
-          <td>{{ book[1] }}</td>
-          <td>{{ book[2] }}</td>
-          <td>{{ book[3] }}</td>
-          <td>{{ toDate(book[4].toNumber()) }}</td>
-          <td>{{ toDate(book[5].toNumber()) }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="row" v-show="!isLoading"></div>
+    <div class="m-3" v-for="book in books" v-bind:key="book.id">
+      <card :bookObject="book" key="book.id" />
+    </div>
   </div>
 </template>
 
 <script>
 // importing common function
 import mixin from "../libs/mixinViews";
+import card from "../components/card.vue";
 
 /**
  * List view component: this component shows list of the registered books
@@ -46,6 +28,10 @@ import mixin from "../libs/mixinViews";
  */
 export default {
   mixins: [mixin],
+
+  components: {
+    card
+  },
 
   data() {
     return {
@@ -82,7 +68,6 @@ export default {
      */
     reloadList() {
       this.books = [];
-
       this.getBookList();
     },
 
@@ -90,18 +75,32 @@ export default {
      * Get all books.
      */
     getAllBooks(callback) {
+      const bookRentContract = window.bc.contract("Library");
       // getting the total number of books stored in the blockchain
       // calling the method totalBooks from the smart contract
-      window.bc.contract("Library").bookId((_err, total) => {
+      bookRentContract.bookId((_err, total) => {
         var tot = 0;
         if (total) tot = total.toNumber();
         console.log(`totalBooks: ${tot}`);
 
         if (tot > 0) {
           // getting the book one by one
-          for (var i = 1; i <= tot; i++) {
-            window.bc.contract().getBookById.call(i, (error, book) => {
-              callback(book);
+          for (var i = 0; i < tot; i++) {
+            const id = i;
+            bookRentContract.books.call(id, (_error, book) => {
+              console.log(`book ${id}: ${JSON.stringify(book)}`);
+              // filter the deleted books
+              const name = book[0];
+              if (name && name != "") {
+                callback({
+                  id,
+                  name,
+                  description: book[1],
+                  available: book[2],
+                  priceWei: book[3],
+                  price: window.bc.weiToEther(book[3])
+                });
+              }
             });
           } // end for
         } else {
@@ -112,7 +111,7 @@ export default {
   }, // end methods
 
   created() {
-    // it tries to get the book list from the blockchian once
+    // it tries to get the book list from the blockchain once
     // the connection is established
     this.tmoConn = setInterval(() => {
       this.getBookList();

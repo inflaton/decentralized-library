@@ -364,7 +364,13 @@ class BcExplorer {
     return this.web3().fromWei(bal, "ether");
   }
 
+  etherToWei(bal) {
+    if (typeof bal == 'object') {
+      bal = bal.toNumber();
+    }
 
+    return this.web3().toWei(bal, "ether");
+  }
 
   /**
    * Transform the parameter from bytes to string.
