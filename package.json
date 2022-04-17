@@ -4,9 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "cd dapp-ui && npm start",
-    "postinstall": "cd dapp-ui && npm install && npm run build",
-    "test:ethereum": "ganache-cli -m 'layer post chase message demise fresh resource beyond bulb rose garden kite'",
+    "start": "node index.js",
+    "postinstall": "cd app && yarn install && yarn build",
     "compile": "truffle compile",
     "test": "truffle test",
     "deploy": "ropsten migrate --reset --network mainnet",
@@ -25,7 +24,6 @@
   "dependencies": {
     "@truffle/hdwallet-provider": "^2.0.6",
     "dotenv-flow": "^3.2.0",
-    "ganache-cli": "^6.5.1",
-    "vuejs-datepicker": "^1.6.2"
+    "express": "^4.17.3"
   }
 }
