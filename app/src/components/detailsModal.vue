@@ -11,7 +11,9 @@
               <h3>Book Name: {{ bookData.name }}</h3>
               <h3>Price: {{ bookData.price }} ETH per day</h3>
               <p>Description: {{ bookData.description }}</p>
-              <div v-if="bookData.address != bookData.owner">
+              <div
+                v-if="bookData.available && userData.address != bookData.owner"
+              >
                 <div class="row ml-4 p-2">
                   <datepicker
                     :value="startDate"
@@ -26,7 +28,7 @@
                   Borrow Now
                 </button>
               </div>
-              <div v-else>
+              <div v-else-if="userData.address == bookData.owner">
                 <button
                   class="btn btn-danger btn-block"
                   v-on:click="deleteBook"
@@ -52,7 +54,7 @@ export default {
   components: {
     Datepicker
   },
-  props: ["bookData"],
+  props: ["bookData", "userData"],
   data() {
     return {
       startDate: new Date(),
@@ -90,7 +92,7 @@ export default {
       const bookId = this.bookData.id;
       const startTime = Math.round(this.startDate.getTime() / 1000);
       const endTime = Math.round(this.endDate.getTime() / 1000);
-      const address = this.bookData.address;
+      const address = this.userData.address;
 
       console.log(`bookId: ${bookId}`);
       console.log(`startTime: ${startTime}`);
@@ -127,9 +129,7 @@ export default {
     deleteBook() {
       const libraryContract = window.bc.contract("Library");
       const bookId = this.bookData.id;
-      const startTime = Math.round(this.startDate.getTime() / 1000);
-      const endTime = Math.round(this.endDate.getTime() / 1000);
-      const address = this.bookData.address;
+      const address = this.userData.address;
 
       console.log(`bookId: ${bookId}`);
       console.log(`address: ${address}`);

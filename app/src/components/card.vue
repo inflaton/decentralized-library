@@ -5,9 +5,12 @@
       <div class="card-body">
         <h4 class="card-title">Price: {{ bookObject.price }}</h4>
         <h5 class="card-title">Name: {{ bookObject.name }}</h5>
-        <p class="card-text">Description: {{ bookObject.description }}</p>
         <p class="card-text">Available: {{ bookObject.available }}</p>
-        <button class="btn btn-primary btn-lg btn-block" v-on:click="toggle">
+        <button
+          class="btn btn-primary btn-lg btn-block"
+          v-on:click="toggle"
+          v-if="userObject.userIsRegistered"
+        >
           View
         </button>
       </div>
@@ -15,6 +18,7 @@
     <details-modal
       v-if="showModal"
       :bookData="bookObject"
+      :userData="userObject"
       @completed="borrowBookCompleted"
     >
     </details-modal>
@@ -25,7 +29,7 @@
 import DetailsModal from "../components/detailsModal.vue";
 
 export default {
-  props: ["bookObject"],
+  props: ["bookObject", "userObject"],
   data() {
     return {
       showModal: false

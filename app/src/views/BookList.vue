@@ -15,7 +15,12 @@
     <h2 v-show="isLoading && bcConnected">Loading...</h2>
     <div class="row" v-show="!isLoading">
       <div class="m-3" v-for="book in books" v-bind:key="book.id">
-        <card :bookObject="book" key="book.id" @reloadList="reloadList" />
+        <card
+          :bookObject="book"
+          :userObject="getUserObject()"
+          key="book.id"
+          @reloadList="reloadList"
+        />
       </div>
     </div>
     <book-form v-if="showModal" v-on:completed="addBookCompleted">
@@ -46,6 +51,7 @@ export default {
     return {
       showModal: false,
       address: null,
+      userIsRegistered: false,
       books: [], // array that stores all the registered books
       isLoading: true, // true when the book list is loading form the blockchain
       bcConnected: false, // blockchain is connected ()
@@ -54,6 +60,12 @@ export default {
   },
 
   methods: {
+    getUserObject() {
+      return {
+        address: this.address,
+        userIsRegistered: this.userIsRegistered
+      };
+    },
     addBookCompleted(txnInfo) {
       console.log(`txnInfo: ${JSON.stringify(txnInfo)}`);
       this.showModal = false;
@@ -99,11 +111,20 @@ export default {
         // stopping the interval
         clearInterval(this.tmoConn);
 
-        // getting all the books from the blockchain
-        this.getAllBooks(book => {
-          this.isLoading = false;
-          this.books.push(book);
-        });
+        this.isRegistered()
+          .then(res => {
+            console.log(`isRegistered: ${res}`);
+            if (res) {
+              this.userIsRegistered = res;
+            }
+
+            // getting all the books from the blockchain
+            this.getAllBooks(book => {
+              this.isLoading = false;
+              this.books.push(book);
+            });
+          })
+          .catch(error => console.log(error));
       }
     },
 
@@ -161,7 +182,9 @@ export default {
   }, // end methods
 
   created() {
-    window.bc.getMainAccount().then(address => (this.address = address));
+    window.bc.getMainAccount().then(address => {
+      this.address = address;
+    });
 
     // it tries to get the book list from the blockchain once
     // the connection is established
