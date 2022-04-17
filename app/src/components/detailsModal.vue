@@ -11,17 +11,30 @@
               <h3>Book Name: {{ bookData.name }}</h3>
               <h3>Price: {{ bookData.price }} ETH per day</h3>
               <p>Description: {{ bookData.description }}</p>
-              <div class="row ml-4 p-2">
-                <datepicker :value="startDate" v-model="startDate"></datepicker>
-                <datepicker v-model="endDate"></datepicker>
+              <div v-if="bookData.address != bookData.owner">
+                <div class="row ml-4 p-2">
+                  <datepicker
+                    :value="startDate"
+                    v-model="startDate"
+                  ></datepicker>
+                  <datepicker v-model="endDate"></datepicker>
+                </div>
+                <button
+                  class="btn btn-secondary btn-block"
+                  v-on:click="borrowBook"
+                >
+                  Borrow Now
+                </button>
               </div>
-              <button class="btn btn-secondary btn-block" v-on:click="borrow">
-                Borrow Now
-              </button>
-              <button
-                class="btn btn-warning btn-block"
-                v-on:click="hideDetails"
-              >
+              <div v-else>
+                <button
+                  class="btn btn-danger btn-block"
+                  v-on:click="deleteBook"
+                >
+                  Delete
+                </button>
+              </div>
+              <button class="btn btn-warning btn-block" v-on:click="closeModal">
                 Cancel
               </button>
             </slot>
@@ -47,8 +60,13 @@ export default {
     };
   },
   methods: {
-    hideDetails() {
-      this.$emit("canceled");
+    closeModal(e) {
+      this.$emit("completed", {
+        result: e.result || "cancelled",
+        txnSubmissionTime: e.txnSubmissionTime,
+        txHash: e.txHash,
+        deleteBook: e.deleteBook
+      });
     },
     getDayOfYear(date) {
       var now = new Date(date);
@@ -60,20 +78,29 @@ export default {
       var oneDay = 1000 * 60 * 60 * 24;
       return Math.floor(diff / oneDay);
     },
-    doBorrowBook(address, value) {
+    borrowBook() {
+      // get Start date
+      const startDay = this.getDayOfYear(this.startDate);
+      // get End date
+      const endDay = this.getDayOfYear(this.endDate);
+      // price calculation
+      const value = this.bookData.priceWei * (endDay - startDay);
+
       const libraryContract = window.bc.contract("Library");
       const bookId = this.bookData.id;
-      const startTime = this.startDate.getTime() / 1000;
-      const endTime = this.endDate.getTime() / 1000;
+      const startTime = Math.round(this.startDate.getTime() / 1000);
+      const endTime = Math.round(this.endDate.getTime() / 1000);
+      const address = this.bookData.address;
 
       console.log(`bookId: ${bookId}`);
       console.log(`startTime: ${startTime}`);
       console.log(`endTime: ${endTime}`);
+      console.log(`address: ${address}`);
       console.log(`value: ${value}`);
 
       const t0 = performance.now();
       // call borrowBook function of contract
-      libraryContract.borrowBook.sendTransaction(
+      libraryContract.borrowBook(
         bookId,
         startTime,
         endTime,
@@ -84,24 +111,52 @@ export default {
         },
         (error, txHash) => {
           const t1 = performance.now();
-          console.log(`borrowBook error: ${error.code} txHash: ${txHash}`);
+          console.log(`borrowBook error: ${error} txHash: ${txHash}`);
           console.log(
             "Call to borrowBook took " + (t1 - t0) + " milliseconds."
           );
+          const txnSubmissionTime = error ? undefined : t1;
+          this.closeModal({
+            result: error ? "error" : "submitted",
+            txnSubmissionTime,
+            txHash
+          });
         }
       );
     },
-    borrow() {
-      // get Start date
-      const startDay = this.getDayOfYear(this.startDate);
-      // get End date
-      const endDay = this.getDayOfYear(this.endDate);
-      // price calculation
-      const totalPrice = this.bookData.priceWei * (endDay - startDay);
+    deleteBook() {
+      const libraryContract = window.bc.contract("Library");
+      const bookId = this.bookData.id;
+      const startTime = Math.round(this.startDate.getTime() / 1000);
+      const endTime = Math.round(this.endDate.getTime() / 1000);
+      const address = this.bookData.address;
 
-      window.bc
-        .getMainAccount()
-        .then(address => this.doBorrowBook(address, totalPrice));
+      console.log(`bookId: ${bookId}`);
+      console.log(`address: ${address}`);
+
+      const t0 = performance.now();
+      // call deleteBook function of contract
+      libraryContract.deleteBook(
+        bookId,
+        {
+          from: address,
+          gas: 800000
+        },
+        (error, txHash) => {
+          const t1 = performance.now();
+          console.log(`deleteBook error: ${error} txHash: ${txHash}`);
+          console.log(
+            "Call to deleteBook took " + (t1 - t0) + " milliseconds."
+          );
+          const txnSubmissionTime = error ? undefined : t1;
+          this.closeModal({
+            result: error ? "error" : "submitted",
+            deleteBook: true,
+            txnSubmissionTime,
+            txHash
+          });
+        }
+      );
     }
   }
 };

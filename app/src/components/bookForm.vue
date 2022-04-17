@@ -9,35 +9,42 @@
 
           <div class="modal-body">
             <slot name="body">
-                <div class="form-group">
-                  <label for="title">Book Name</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    v-model="title"
-                    placeholder="Enter Book Name"
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="description">Description</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    v-model="description"
-                    placeholder="Description"
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="price">Price</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    v-model="price"
-                    placeholder="Unit: TRX"
-                  />
-                </div>
-                <button v-on:click="postAd" class="btn btn-primary float-right">Submit</button>
-                <!-- <button class="btn btn-outline-secondary float-right mr-3" v-on:click="close">Cancel</button> -->
+              <div class="form-group">
+                <label for="title">Book Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  v-model="title"
+                  placeholder="Enter Book Name"
+                />
+              </div>
+              <div class="form-group">
+                <label for="description">Description</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  v-model="description"
+                  placeholder="Description"
+                />
+              </div>
+              <div class="form-group">
+                <label for="price">Price</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  v-model="price"
+                  placeholder="Unit: ETH"
+                />
+              </div>
+              <button v-on:click="addBook" class="btn btn-primary float-right">
+                Submit
+              </button>
+              <button
+                class="btn btn-outline-secondary float-right mr-3"
+                v-on:click="closeModal"
+              >
+                Cancel
+              </button>
             </slot>
           </div>
         </div>
@@ -47,21 +54,56 @@
 </template>
 
 <script>
-import { postBookInfo } from "~/plugins/utils";
+// import { postBookInfo } from "~/plugins/utils";
 
 export default {
   components: {},
   data() {
     return {
-      title: '',
-      description: '',
-      price: '',
-    }
+      title: "",
+      description: "",
+      price: ""
+    };
   },
   methods: {
-    postAd() {
-      // convert price from TRX to SUN
-      postBookInfo(this.title,this.description,tronWeb.toSun(this.price));
+    closeModal(e) {
+      this.$emit("completed", {
+        result: e.result || "cancelled",
+        txnSubmissionTime: e.txnSubmissionTime,
+        txHash: e.txHash
+      });
+    },
+    addBook() {
+      const libraryContract = window.bc.contract("Library");
+      const priceWei = window.bc.etherToWei(this.price);
+      console.log(`value: ${priceWei}`);
+
+      window.bc.getMainAccount().then(address => {
+        const t0 = performance.now();
+        // call borrowBook function of contract
+        libraryContract.addBook(
+          this.title,
+          this.description,
+          priceWei,
+          {
+            from: address,
+            gas: 800000
+          },
+          (error, txHash) => {
+            const t1 = performance.now();
+            console.log(`borrowBook error: ${error} txHash: ${txHash}`);
+            console.log(
+              "Call to borrowBook took " + (t1 - t0) + " milliseconds."
+            );
+            const txnSubmissionTime = error ? undefined : t1;
+            this.closeModal({
+              result: error ? "error" : "submitted",
+              txnSubmissionTime,
+              txHash
+            });
+          }
+        );
+      });
     }
   }
 };

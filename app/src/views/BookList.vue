@@ -3,6 +3,9 @@
     <button class="btn btn-primary float-right mt-2" @click="reloadList">
       Reload
     </button>
+    <button class="btn btn-second float-right mt-2" @click="toggle">
+      Add Book
+    </button>
     <h1 class="title">Book List</h1>
 
     <div class="clearfix"></div>
@@ -10,10 +13,14 @@
     <h2 v-show="!bcConnected">Not connect to the blockchain: please wait.</h2>
 
     <h2 v-show="isLoading && bcConnected">Loading...</h2>
-    <div class="row" v-show="!isLoading"></div>
-    <div class="m-3" v-for="book in books" v-bind:key="book.id">
-      <card :bookObject="book" key="book.id" />
+    <div class="row" v-show="!isLoading">
+      <div class="m-3" v-for="book in books" v-bind:key="book.id">
+        <card :bookObject="book" key="book.id" @reloadList="reloadList" />
+      </div>
     </div>
+    <book-form v-if="showModal" v-on:completed="addBookCompleted">
+      <h3 slot="header">Rent Your Books</h3>
+    </book-form>
   </div>
 </template>
 
@@ -21,6 +28,7 @@
 // importing common function
 import mixin from "../libs/mixinViews";
 import card from "../components/card.vue";
+import bookForm from "../components/bookForm.vue";
 
 /**
  * List view component: this component shows list of the registered books
@@ -30,11 +38,14 @@ export default {
   mixins: [mixin],
 
   components: {
-    card
+    card,
+    bookForm
   },
 
   data() {
     return {
+      showModal: false,
+      address: null,
       books: [], // array that stores all the registered books
       isLoading: true, // true when the book list is loading form the blockchain
       bcConnected: false, // blockchain is connected ()
@@ -43,6 +54,39 @@ export default {
   },
 
   methods: {
+    addBookCompleted(txnInfo) {
+      console.log(`txnInfo: ${JSON.stringify(txnInfo)}`);
+      this.showModal = false;
+
+      if (txnInfo.txnSubmissionTime) {
+        const bookRentContract = window.bc.contract("Library");
+
+        var lastTotal = -1;
+        this.tmoConn = setInterval(() => {
+          // checking first the connection
+          if (this.blockchainIsConnected()) {
+            bookRentContract.bookId((_err, total) => {
+              var tot = -1;
+              if (total) {
+                tot = total.toNumber();
+              }
+              console.log(`totalBooks: ${tot}`);
+              if (lastTotal >= 0 && tot > lastTotal) {
+                const t1 = performance.now();
+                console.log(
+                  "addBook confirmation took " +
+                    (t1 - txnInfo.txnSubmissionTime) +
+                    " milliseconds."
+                );
+                clearInterval(this.tmoConn);
+                this.reloadList();
+              }
+              lastTotal = tot;
+            });
+          }
+        }, 500);
+      }
+    },
     /**
      * Get the list of the registered books once the connection to the
      * blockchain is established.
@@ -69,6 +113,10 @@ export default {
     reloadList() {
       this.books = [];
       this.getBookList();
+    },
+
+    toggle() {
+      this.showModal = !this.showModal;
     },
 
     /**
@@ -98,7 +146,9 @@ export default {
                   description: book[1],
                   available: book[2],
                   priceWei: book[3],
-                  price: window.bc.weiToEther(book[3])
+                  price: window.bc.weiToEther(book[3]),
+                  owner: book[4],
+                  address: this.address
                 });
               }
             });
@@ -111,6 +161,8 @@ export default {
   }, // end methods
 
   created() {
+    window.bc.getMainAccount().then(address => (this.address = address));
+
     // it tries to get the book list from the blockchain once
     // the connection is established
     this.tmoConn = setInterval(() => {
