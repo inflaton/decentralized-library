@@ -4,8 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "postinstall": "cd app && yarn install && yarn build",
     "compile": "truffle compile",
     "test": "truffle test",
     "deploy": "ropsten migrate --reset --network mainnet",
