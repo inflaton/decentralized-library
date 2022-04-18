@@ -13,3 +13,5 @@ build
 .tronbox
 .secret
 *.log
+*_private_key
+loom

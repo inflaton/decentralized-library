@@ -1,68 +1,155 @@
-# Decentralized library
 
-In this workshop, we'll explore how to create decentralized Library. We will use the pre-written Tron smart contract and deploy it using TronBox, we can deploy contract on any Testnet or Mainnet.
+# Truffle DappChain Example
 
-This dApp uses [Nuxt](https://nuxtjs.org/), but is out of scope for this workshop, so don't worry, we will only be focusing on the pieces that helps us build. In practice, any JS framework can be used.
+This simple example shows how you can use `Truffle` and the [Loom Truffle Provider](https://github.com/loomnetwork/loom-truffle-provider) to build a simple Web UI that interacts with the Loom PlasmaChain.
+
+![](https://dzwonsemrish7.cloudfront.net/items/0a1N05043p1Y1G3K1Y2L/Screen%20Recording%202018-07-17%20at%2011.26%20AM.gif?v=df873ac3)
 
 
+## Requirements
 
-Please refer to the following steps to deploy this DApp on Nile testnet
-### 1. NodeJS version 10 or 12
-```
-node -v
-> v10.24.1
-```
-### 2. TronLink
+Make sure the following requirements are met and then follow the steps in the next section:
 
-[Download TronLink chrome extension](https://www.tronlink.org/)
-
-### 3. TronBox
-```
-npm install -g tronbox 
+```text
+Recommended Node version v10.15.3
+yarn or npm
 ```
 
-### 4. Account 
-If there is no Tron account, please use TronLink to create a new Account. And then apply for some test coins of Nile testnet for testing. Please make sure the account has enough TRX. [Get test coins](https://nileex.io/join/getJoinPage)
+## Install
 
-### 5. Template clone
-Now we have Setup installed properly, let’s grab the dApp template that we will use as the skeleton of our dApp. This template is a website built using Nuxt.js (don't worry if you don't know Nuxt.js, we are not focusing on this part).
+First, let's clone this repository. Open a terminal, `cd` into the directory where you store your projects, and run the following command:
 
-Clone the template into your folder:
-```
-git clone https://github.com/TRON-Developer-Hub/decentralized-library
-
-cd decentralized-library
-
-npm install
-```
-### 6. Modify the privatekey in tronbox.js
-Paste your account's private key to 'privateKey' in tronbox.js
-
-### 7. Smart Contract 
-Follow [instructions](./instructions.md) to complete the smart contract code. If you only test the template code, please skip this step.
-
-### 8. Deploy contract using TronBox
-Compile contract:
-```
-tronbox compile
-```
-Deploy contract:
-```
-tronbox migrate --reset --network nile
-```
-On sucessfull deploy, copy the `contract address`
-
-### 9. Paste your contract address to variable `libraryContractAddress` on line 5 in [utils.js](./dapp-ui/plugins/utils.js).
-
-### 10. DApp code
-Follow [dapps](./dapps.md) to complete the DApp code. If you only test the template code, please skip this step.
-
-### 11. Run DApp UI
-```
-cd dapp-ui
-npm install
-npm run dev
+```bash
+git clone https://github.com/loomnetwork/truffle-dappchain-example
 ```
 
-### 12. Navigate to http://localhost:3000/ to see the app running.
+Next, `cd` into `truffle-dappchain-example`:
 
+```bash
+cd truffle-dappchain-example
+```
+
+and run:
+
+```bash
+yarn install
+```
+
+## Run against Loom Testnet
+
+### Generate the Loom private key
+
+The following command will download the `loom` binary and generate the private key for you:
+
+```bash
+yarn gen:extdev-key
+```
+
+This will download the loom binary and generate a private key. The private key will be saved into a file called `extdev_private_key`.
+
+
+### Deploy to extdev_plasma_us1
+
+As an example, we will deploy and run our application against `extdev_plasma_us1`.
+
+Run the following command:
+
+```bash
+yarn deploy:extdev
+```
+
+>The above command will **compile and then deploy** our smart contract to `extdev_plasma_us1`
+
+
+### Test
+
+Run this command below to send transactions to the smart contract deployed to `extdev_plasma_us1`:
+
+
+```test
+yarn test:extdev
+```
+
+If everything looks good, let's spin up a web server and interact with our smart contract.
+
+### Start the web interface
+
+The web interface is built with React and Webpack. Open a new terminal and run the following command:
+
+```bash
+yarn serve:extdev
+```
+
+> The web interface is available on http://localhost:8080.
+
+
+
+## Run against local Loom chain
+
+First, you have to generate a private key using:
+
+```bash
+yarn gen:loom-key
+```
+
+This will download the loom binary and write a private key to a file called  `loom_private_key`
+
+### Spin up Loom Chain
+
+In a new terminal, run:
+
+```bash
+yarn loom:init
+```
+
+and then:
+
+```bash
+yarn loom:run
+```
+
+### Deploy the smart contract
+
+To deploy, run the following command:
+
+```bash
+yarn deploy
+```
+
+### Test
+
+
+```bash
+yarn test
+```
+
+## Web interface
+
+We're ready to start the web server. In a new terminal, run:
+
+```bash
+yarn serve
+```
+
+## Useful information
+
+1. In order to correctly redeploy the contracts, there's a command `yarn deploy:reset`.
+
+2. Also is possible to call truffle command directly with `yarn truffle`.
+
+2. We're not versioning the build directory for this particular example, although is recommended to versioning, the limitation can be removed by editing the `.gitignore` file.
+
+
+## Current limitations
+
+* Events declared on smart contracts should have an named parameter like `NewValueSet(uint _value)` in the contract `SimpleStore.sol`. Also, it helps in dealing with events.
+
+Loom Network
+----
+[https://loomx.io](https://loomx.io)
+
+
+License
+----
+
+BSD 3-Clause License
