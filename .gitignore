@@ -15,3 +15,4 @@ build
 *.log
 *_private_key
 loom
+loom-provider-json-rpc-proxy
