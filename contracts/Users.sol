@@ -1,7 +1,13 @@
 //SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
-abstract contract Context {
+abstract contract UserContext {
+    address public owner;
+
+    constructor() {
+        owner = _msgSender();
+    }
+
     function _msgSender() internal view virtual returns (address) {
         return msg.sender;
     }
@@ -13,14 +19,6 @@ abstract contract Context {
 
     function _msgValue() internal view virtual returns (uint256 value) {
         return msg.value;
-    }
-}
-
-abstract contract Owner is Context {
-    address public owner;
-
-    constructor() {
-        owner = _msgSender();
     }
 
     /**
@@ -39,7 +37,7 @@ abstract contract Owner is Context {
     }
 }
 
-contract Users is Owner {
+contract Users is UserContext {
     // data structure that stores a user
     struct User {
         string name;
