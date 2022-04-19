@@ -3,7 +3,6 @@ var Users = artifacts.require('./Users.sol');
 contract('Users', function (accounts) {
     var instance = null; // store the Users contract instance
     var mainAccount = accounts[0];
-    var anotherAccount = accounts[1];
 
     // TEST: register a new user and check if the total users is increased and if the
     // user has been registered correctly.
@@ -21,10 +20,10 @@ contract('Users', function (accounts) {
             usersBeforeRegister = result.toNumber();
 
             // registering the user calling the smart contract function registerUser
-            return instance.registerUser('Test User Name', 'Test Status', {
+            return instance.registerUser('Test User Name', 'Test email', {
                 from: mainAccount
             });
-        }).then(function (result) {
+        }).then(function (_result) {
             return instance.totalUsers.call();
         }).then(function (result) {
             // checking if the total number of user is increased by 1
@@ -42,32 +41,32 @@ contract('Users', function (accounts) {
 
     // Testing the data of the user profile stored in the blockchain match with the data
     // gave during the registration.
-    it("username and status in the blockchian should be the same the one gave on the registration", function () {
+    it("username and email in the blockchain should be the same the one gave on the registration", function () {
         // NOTE: the contract instance has been instantiated before, so no need
         // to do again: return Users.deployed().then(function(contractInstance) { ...
         // like before in "should register an user".
         return instance.getOwnProfile.call().then(function (result) {
             // the result is an array where in the position 0 there user ID, in
-            // the position 1 the user name and in the position 2 the status,
+            // the position 1 the user name and in the position 2 the email,
             assert.equal(result[1], 'Test User Name');
-            assert.equal(result[2], 'Test Status');
+            assert.equal(result[2], 'Test email');
         });
-    }); // end testing username and status
+    }); // end testing username and email
 
 
 
-    // Testing the update profile function: first update the user's profile name and status, then
+    // Testing the update profile function: first update the user's profile name and email, then
     // chching that the profile has been updated correctly.
     it("should update the profile", function () {
-        return instance.updateUser('Updated Name', 'Updated Status', {
+        return instance.updateUser('Updated Name', 'Updated email', {
             from: mainAccount
         }).then(function (result) {
             return instance.getOwnProfile.call();
         }).then(function (result) {
             // the result is an array where in the position 0 there user ID, in
-            // the position 1 the user name and in the position 2 the status,
+            // the position 1 the user name and in the position 2 the email,
             assert.equal(result[1], 'Updated Name');
-            assert.equal(result[2], 'Updated Status');
+            assert.equal(result[2], 'Updated email');
         });
     }); // end should update the profile
 
@@ -77,11 +76,25 @@ contract('Users', function (accounts) {
     it("a registered user should not be registered twice", function () {
         // we are expecting the call to registerUser to fail since the user account
         // is already registered!
-        return instance.registerUser('Test username Twice', 'Test Status Twice', {
+        return instance.registerUser('Test username Twice', 'Test email Twice', {
             from: mainAccount
-        }).then(assert.fail).catch(function (error) { // here we are expecting the exception
+        }).then(assert.fail).catch(function (_error) { // here we are expecting the exception
             assert(true);
         });
     }); // end testing registration twice
+
+
+    it("should unregister an user", function () {
+
+        return instance.unregisterUser({
+            from: mainAccount
+        }).then(function (_result) {
+            // we are expecting a boolean in return that it should be TRUE
+            return instance.isRegistered.call();
+        }).then(function (result) {
+            // we are expecting a boolean in return that it should be TRUE
+            assert.isFalse(result);
+        });
+    }); // end of "should unregister an user"
 
 }); // end Users contract

@@ -1,7 +1,45 @@
 //SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
-contract Users {
+abstract contract Context {
+    function _msgSender() internal view virtual returns (address) {
+        return msg.sender;
+    }
+
+    function _msgData() internal view virtual returns (bytes calldata) {
+        this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691
+        return msg.data;
+    }
+
+    function _msgValue() internal view virtual returns (uint256 value) {
+        return msg.value;
+    }
+}
+
+abstract contract Owner is Context {
+    address public owner;
+
+    constructor() {
+        owner = _msgSender();
+    }
+
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier onlyOwner() {
+        require(_msgSender() == owner);
+        _;
+    }
+
+    /**
+     * @dev Check if the current caller is the contract owner.
+     */
+    function isOwner() internal view returns (bool) {
+        return owner == _msgSender();
+    }
+}
+
+contract Users is Owner {
     // data structure that stores a user
     struct User {
         string name;
@@ -19,6 +57,9 @@ contract Users {
 
     // event fired when an user is registered
     event newUserRegistered(uint256 id);
+
+    // event fired when an user is registered
+    event userUnregistered(uint256 id);
 
     // event fired when the user updates his email or name
     event userUpdateEvent(uint256 id);
@@ -53,7 +94,7 @@ contract Users {
         public
         returns (uint256)
     {
-        return addUser(msg.sender, _userName, _email);
+        return addUser(_msgSender(), _userName, _email);
     }
 
     /**
@@ -95,6 +136,19 @@ contract Users {
     }
 
     /**
+     * Function to unregister a new user.
+     */
+    function unregisterUser() public returns (bool success) {
+        uint256 userId = usersIds[_msgSender()];
+        require(userId != 0, "The user is not registered");
+
+        usersIds[_msgSender()] = 0;
+        emit userUnregistered(userId);
+
+        return true;
+    }
+
+    /**
      * Update the user profile of the caller of this method.
      * Note: the user can modify only his own profile.
      *
@@ -107,7 +161,7 @@ contract Users {
         returns (uint256)
     {
         // An user can modify only his own profile.
-        uint256 userId = usersIds[msg.sender];
+        uint256 userId = usersIds[_msgSender()];
 
         User storage user = users[userId];
 
@@ -168,7 +222,7 @@ contract Users {
             uint256
         )
     {
-        uint256 id = usersIds[msg.sender];
+        uint256 id = usersIds[_msgSender()];
 
         return getUserById(id);
     }
@@ -177,7 +231,7 @@ contract Users {
      * Check if the user that is calling the smart contract is registered.
      */
     function isRegistered() public view returns (bool) {
-        return (usersIds[msg.sender] > 0);
+        return (usersIds[_msgSender()] > 0);
     }
 
     function totalUsers() public view returns (uint256) {

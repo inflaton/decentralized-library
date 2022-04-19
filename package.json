@@ -7,10 +7,10 @@
     "compile": "truffle compile",
     "test": "truffle test",
     "test:extdev": "truffle test --network extdev_plasma_us1",
-    "deploy": "truffle migrate --reset --network loom_dapp_chain",
+    "deploy": "truffle migrate --reset",
     "deploy:rinkeby": "truffle migrate --reset --network rinkeby",
     "deploy:ropsten": "truffle migrate --reset --network ropsten",
-    "deploy:extdev": "truffle migrate --network extdev_plasma_us1",
+    "deploy:extdev": "truffle migrate --reset --network extdev_plasma_us1",
     "gen:rinkeby-key": "node ./scripts/gen-eth-key.js rinkeby",
     "get:loom": "if [ ! -d loom ]; then mkdir loom && cd loom && curl https://raw.githubusercontent.com/loomnetwork/loom-sdk-documentation/master/scripts/get_loom.sh | sh && chmod +x ./loom && cd ..; fi",
     "gen:extdev-key": "node scripts/gen-loom-key.js extdev_private_key",
@@ -40,7 +40,7 @@
     "truffle": "5.3.6",
     "truffle-hdwallet-provider": "^1.0.2",
     "truffle-privatekey-provider": "^1.3.0",
-    "web3": "1.2.1",
+    "web3": "1.2.4",
     "dotenv-flow": "^3.2.0"
   }
 }
