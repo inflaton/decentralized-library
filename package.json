@@ -11,6 +11,7 @@
     "deploy:rinkeby": "truffle migrate --reset --network rinkeby",
     "deploy:ropsten": "truffle migrate --reset --network ropsten",
     "deploy:extdev": "truffle migrate --reset --network extdev_plasma_us1",
+    "deploy:meter": "truffle migrate --reset --network meter",
     "gen:rinkeby-key": "node ./scripts/gen-eth-key.js rinkeby",
     "get:loom": "if [ ! -d loom ]; then mkdir loom && cd loom && curl https://raw.githubusercontent.com/loomnetwork/loom-sdk-documentation/master/scripts/get_loom.sh | sh && chmod +x ./loom && cd ..; fi",
     "gen:extdev-key": "node scripts/gen-loom-key.js extdev_private_key",
