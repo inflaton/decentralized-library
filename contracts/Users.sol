@@ -140,6 +140,7 @@ contract Users is UserContext {
         uint256 userId = usersIds[_msgSender()];
         require(userId != 0, "The user is not registered");
 
+        updateUser("", "");
         usersIds[_msgSender()] = 0;
         emit userUnregistered(userId);
 

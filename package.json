@@ -6,6 +6,7 @@
   "scripts": {
     "compile": "truffle compile",
     "test": "truffle test",
+    "test:meter": "truffle test --network meter",
     "test:extdev": "truffle test --network extdev_plasma_us1",
     "deploy": "truffle migrate --reset",
     "deploy:rinkeby": "truffle migrate --reset --network rinkeby",
