@@ -43,6 +43,6 @@
     "loom-truffle-provider": "^0.16.0",
     "openzeppelin-solidity": "4.1.0",
     "truffle": "^5.5.10",
-    "web3": "1.2.4"
+    "web3": "^0.20.6"
   }
 }
