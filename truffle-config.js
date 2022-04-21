@@ -18,32 +18,9 @@
  *
  */
 
-const fs = require('fs');
-const path = require('path')
-const LoomTruffleProvider = require('loom-truffle-provider')
-const HDWalletProvider = require("@truffle/hdwallet-provider")
 const PrivateKeyProvider = require("@truffle/hdwallet-provider")
-const { sha256 } = require('js-sha256')
-const { CryptoUtils } = require('loom-js')
-const { mnemonicToSeedSync } = require('bip39')
-const EXPECTING_FILE_ERROR = "Expecting either a private key or a mnemonic file. Refer to the README file for more details."
-
-const mnemonic = fs.readFileSync(".secret").toString().trim();
 const dotEnv = require("dotenv-flow");
 dotEnv.config();
-
-function getLoomProviderWithPrivateKey(privateKeyPath, chainId, writeUrl, readUrl) {
-  const privateKey = fs.readFileSync(privateKeyPath, 'utf-8')
-  return new LoomTruffleProvider(chainId, writeUrl, readUrl, privateKey)
-}
-
-function getLoomProviderWithMnemonic(mnemonicPath, chainId, writeUrl, readUrl) {
-  const mnemonic = fs.readFileSync(mnemonicPath, 'utf-8').toString().trim()
-  const seed = mnemonicToSeedSync(mnemonic)
-  const privateKeyUint8ArrayFromSeed = CryptoUtils.generatePrivateKeyFromSeed(new Uint8Array(sha256.array(seed)))
-  const privateKeyB64 = CryptoUtils.Uint8ArrayToB64(privateKeyUint8ArrayFromSeed)
-  return new LoomTruffleProvider(chainId, writeUrl, readUrl, privateKeyB64)
-}
 
 module.exports = {
   /**
@@ -64,169 +41,50 @@ module.exports = {
     // options below to some value.
     development: {
       host: "127.0.0.1",     // Localhost (default: none)
-      port: 8545,            // Standard Ethereum port (default: none)
-      network_id: "*",       // Any network (default: none)
-    },
-
-    meter: {
-      provider: () => new HDWalletProvider('dice bicycle thing clarify cotton manage pigeon blue patch key pudding town first symptom destroy',
-        "https://rpctest.meter.io"),
+      port: 7545,            // Standard Ethereum port (default: none)
       network_id: "*",       // Any network (default: none)
     },
 
     besu: {
       provider: () => {
-        const privateKeyPath = path.join(__dirname, 'besu_private_key')
-        if (fs.existsSync(privateKeyPath)) {
-          const privateKey = fs.readFileSync(privateKeyPath, 'utf-8')
-          return new PrivateKeyProvider(privateKey, "http://localhost:8545")
-        } else {
-          throw new Error(EXPECTING_FILE_ERROR)
-        }
+        return new PrivateKeyProvider(process.env.BESU_PRIVATE_KEY, "http://localhost:8545");
       },
-      network_id: "*"
+      network_id: "*",       // Any network (default: none)
     },
 
-    // Another network with more advanced options...
-    // advanced: {
-    // port: 8777,             // Custom port
-    // network_id: 1342,       // Custom network
-    // gas: 8500000,           // Gas sent with each transaction (default: ~6700000)
-    // gasPrice: 20000000000,  // 20 gwei (in wei) (default: 100 gwei)
-    // from: <address>,        // Account to send txs from (default: accounts[0])
-    // websockets: true        // Enable EventEmitter interface for web3 (default: false)
-    // },
+    meter: {
+      provider: () => {
+        return new PrivateKeyProvider(process.env.METER_PRIVATE_KEY,
+          "https://rpctest.meter.io");
+      },
+      network_id: "*",       // Any network (default: none)
+    },
 
-    // Useful for deploying to a public network.
-    // NB: It's important to wrap the provider as a function.
     ropsten: {
-      provider: () => new HDWalletProvider(mnemonic, `https://ropsten.infura.io/v3/${process.env.INFURA_API_KEY}}`),
-      networkCheckTimeout: 99999999,
-      network_id: 3,       // Ropsten's id
-      gas: 5500000,        // Ropsten has a lower block limit than mainnet
-      confirmations: 2,    // # of confs to wait between deployments. (default: 0)
-      timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
-      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+      provider: () => {
+        return new PrivateKeyProvider(process.env.ROPSTEN_PRIVATE_KEY,
+          `wss://ropsten.infura.io/ws/v3/${process.env.INFURA_API_KEY}`);
+      },
+      networkCheckTimeout: 10000,
+      network_id: 3,        // Ropsten's id
+      gas: 8000000,         // Gas sent with each transaction (default: ~6700000)
+      // gasPrice: 20000000000,// 20 gwei (in wei) (default: 100 gwei)
+      timeoutBlocks: 200,   // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true      // Skip dry run before migrations? (default: false for public nets)
     },
 
     rinkeby: {
-      provider: () => new HDWalletProvider(mnemonic, `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}}`),
-      networkCheckTimeout: 99999999,
+      provider: () => {
+        return new PrivateKeyProvider(process.env.RINKEBY_PRIVATE_KEY,
+          `wss://rinkeby.infura.io/ws/v3/${process.env.INFURA_API_KEY}}`);
+      },
+      networkCheckTimeout: 10000,
       network_id: 4,
-      gas: 5500000,        // Ropsten has a lower block limit than mainnet
-      confirmations: 2,    // # of confs to wait between deployments. (default: 0)
-      timeoutBlocks: 2000,  // # of blocks before a deployment times out  (minimum/default: 50)
-      skipDryRun: true
+      gas: 8000000,         // Gas sent with each transaction (default: ~6700000)
+      // gasPrice: 20000000000,// 20 gwei (in wei) (default: 100 gwei)
+      timeoutBlocks: 200,   // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true      // Skip dry run before migrations? (default: false for public nets)
     },
-
-    loom_dapp_chain: {
-      provider: function () {
-        const chainId = 'default'
-        const writeUrl = 'http://127.0.0.1:46658/rpc'
-        const readUrl = 'http://127.0.0.1:46658/query'
-        const mnemonicPath = path.join(__dirname, 'loom_mnemonic')
-        const privateKeyPath = path.join(__dirname, 'loom_private_key')
-        if (fs.existsSync(privateKeyPath)) {
-          const loomTruffleProvider = getLoomProviderWithPrivateKey(privateKeyPath, chainId, writeUrl, readUrl)
-          loomTruffleProvider.createExtraAccountsFromMnemonic("gravity top burden flip student usage spell purchase hundred improve check genre", 10)
-          return loomTruffleProvider
-        } else if (fs.existsSync(mnemonicPath)) {
-          const loomTruffleProvider = getLoomProviderWithMnemonic(mnemonicPath, chainId, writeUrl, readUrl)
-          return loomTruffleProvider
-        } else {
-          throw new Error(EXPECTING_FILE_ERROR)
-        }
-      },
-      network_id: '*',
-      port: 8545
-    },
-    loomv2b: {
-      provider: function () {
-        const chainId = 'loomv2b'
-        const writeUrl = 'http://loomv2b.dappchains.com:46658/rpc'
-        const readUrl = 'http://loomv2b.dappchains.com:46658/query'
-        const mnemonicPath = path.join(__dirname, 'loomv2b_mnemonic')
-        const privateKeyPath = path.join(__dirname, 'loomv2b_pk')
-        if (fs.existsSync(privateKeyPath)) {
-          const loomTruffleProvider = getLoomProviderWithPrivateKey(privateKeyPath, chainId, writeUrl, readUrl)
-          return loomTruffleProvider
-        } else if (fs.existsSync(mnemonicPath)) {
-          const loomTruffleProvider = getLoomProviderWithMnemonic(mnemonicPath, chainId, writeUrl, readUrl)
-          return loomTruffleProvider
-        } else {
-          throw new Error(EXPECTING_FILE_ERROR)
-        }
-      },
-      network_id: '12106039541279'
-    },
-    extdev_plasma_us1: {
-      provider: function () {
-        const chainId = 'extdev-plasma-us1'
-        const writeUrl = 'http://extdev-plasma-us1.dappchains.com:80/rpc'
-        const readUrl = 'http://extdev-plasma-us1.dappchains.com:80/query'
-        const mnemonicPath = path.join(__dirname, 'extdev_mnemonic')
-        const privateKeyPath = path.join(__dirname, 'extdev_private_key')
-        if (fs.existsSync(privateKeyPath)) {
-          const loomTruffleProvider = getLoomProviderWithPrivateKey(privateKeyPath, chainId, writeUrl, readUrl)
-          // use a dummy mnemonic to create a bunch of accounts we'll use for testing purposes
-          loomTruffleProvider.createExtraAccountsFromMnemonic("gravity top burden flip student usage spell purchase hundred improve check genre", 10)
-
-          return loomTruffleProvider
-        } else if (fs.existsSync(mnemonicPath)) {
-          const loomTruffleProvider = getLoomProviderWithMnemonic(mnemonicPath, chainId, writeUrl, readUrl)
-          return loomTruffleProvider
-        } else {
-          throw new Error(EXPECTING_FILE_ERROR)
-        }
-      },
-      network_id: '9545242630824'
-    },
-    loom_mainnet: {
-      provider: function () {
-        const chainId = 'default'
-        const writeUrl = 'http://plasma.dappchains.com/rpc'
-        const readUrl = 'http://plasma.dappchains.com/query'
-        const mnemonicPath = path.join(__dirname, 'mainnet_mnemonic')
-        const privateKeyPath = path.join(__dirname, 'mainnet_private_key')
-        if (fs.existsSync(privateKeyPath)) {
-          const loomTruffleProvider = getLoomProviderWithPrivateKey(privateKeyPath, chainId, writeUrl, readUrl)
-          return loomTruffleProvider
-        } else if (fs.existsSync(mnemonicPath)) {
-          const loomTruffleProvider = getLoomProviderWithMnemonic(mnemonicPath, chainId, writeUrl, readUrl)
-          return loomTruffleProvider
-        } else {
-          throw new Error(EXPECTING_FILE_ERROR)
-        }
-      },
-      network_id: '*'
-    },
-    rinkeby_old: {
-      provider: function () {
-        if (!process.env.INFURA_API_KEY) {
-          throw new Error("INFURA_API_KEY env var not set")
-        }
-        const mnemonicPath = path.join(__dirname, 'rinkeby_mnemonic')
-        const privateKeyPath = path.join(__dirname, 'rinkeby_private_key')
-        if (fs.existsSync(privateKeyPath)) {
-          const privateKey = fs.readFileSync(path.join(__dirname, 'rinkeby_private_key'), 'utf-8')
-          return new PrivateKeyProvider(privateKey, `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`, 0, 10)
-        } else if (fs.existsSync(mnemonicPath)) {
-          return new HDWalletProvider(mnemonic, `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`, 0, 10)
-        } else {
-          throw new Error(EXPECTING_FILE_ERROR)
-        }
-      },
-      network_id: 4,
-      gasPrice: 15000000001,
-      skipDryRun: true
-    }
-
-    // Useful for private networks
-    // private: {
-    // provider: () => new HDWalletProvider(mnemonic, `https://network.io`),
-    // network_id: 2111,   // This network is yours, in the cloud.
-    // production: true    // Treats this network as if it was a public net. (default: false)
-    // }
   },
 
   // Set default mocha options here, use special reporters etc.
