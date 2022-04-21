@@ -21,11 +21,11 @@
 const fs = require('fs');
 const path = require('path')
 const LoomTruffleProvider = require('loom-truffle-provider')
-const HDWalletProvider = require('truffle-hdwallet-provider')
+const HDWalletProvider = require("@truffle/hdwallet-provider")
+const PrivateKeyProvider = require("@truffle/hdwallet-provider")
 const { sha256 } = require('js-sha256')
 const { CryptoUtils } = require('loom-js')
 const { mnemonicToSeedSync } = require('bip39')
-const PrivateKeyProvider = require("truffle-privatekey-provider");
 const EXPECTING_FILE_ERROR = "Expecting either a private key or a mnemonic file. Refer to the README file for more details."
 
 const mnemonic = fs.readFileSync(".secret").toString().trim();
@@ -74,6 +74,19 @@ module.exports = {
       network_id: "*",       // Any network (default: none)
     },
 
+    besu: {
+      provider: () => {
+        const privateKeyPath = path.join(__dirname, 'besu_private_key')
+        if (fs.existsSync(privateKeyPath)) {
+          const privateKey = fs.readFileSync(privateKeyPath, 'utf-8')
+          return new PrivateKeyProvider(privateKey, "http://localhost:8545")
+        } else {
+          throw new Error(EXPECTING_FILE_ERROR)
+        }
+      },
+      network_id: "*"
+    },
+
     // Another network with more advanced options...
     // advanced: {
     // port: 8777,             // Custom port
@@ -94,6 +107,16 @@ module.exports = {
       confirmations: 2,    // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
       skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+    },
+
+    rinkeby: {
+      provider: () => new HDWalletProvider(mnemonic, `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}}`),
+      networkCheckTimeout: 99999999,
+      network_id: 4,
+      gas: 5500000,        // Ropsten has a lower block limit than mainnet
+      confirmations: 2,    // # of confs to wait between deployments. (default: 0)
+      timeoutBlocks: 2000,  // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true
     },
 
     loom_dapp_chain: {
@@ -177,7 +200,7 @@ module.exports = {
       },
       network_id: '*'
     },
-    rinkeby: {
+    rinkeby_old: {
       provider: function () {
         if (!process.env.INFURA_API_KEY) {
           throw new Error("INFURA_API_KEY env var not set")
@@ -185,7 +208,7 @@ module.exports = {
         const mnemonicPath = path.join(__dirname, 'rinkeby_mnemonic')
         const privateKeyPath = path.join(__dirname, 'rinkeby_private_key')
         if (fs.existsSync(privateKeyPath)) {
-          const privateKey = readFileSync(path.join(__dirname, 'rinkeby_private_key'), 'utf-8')
+          const privateKey = fs.readFileSync(path.join(__dirname, 'rinkeby_private_key'), 'utf-8')
           return new PrivateKeyProvider(privateKey, `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`, 0, 10)
         } else if (fs.existsSync(mnemonicPath)) {
           return new HDWalletProvider(mnemonic, `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`, 0, 10)

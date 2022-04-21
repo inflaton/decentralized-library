@@ -16,3 +16,4 @@ build
 *_private_key
 loom
 loom-provider-json-rpc-proxy
+rinkeby_*
