@@ -73,13 +73,13 @@ module.exports = {
       skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
     },
 
-    rinkeby: {
+    polygon: {
       provider: () => {
-        return new PrivateKeyProvider(process.env.RINKEBY_PRIVATE_KEY,
-          `wss://rinkeby.infura.io/ws/v3/${process.env.INFURA_API_KEY}}`);
+        return new PrivateKeyProvider(process.env.POLYGON_PRIVATE_KEY,
+          "https://matic-mumbai.chainstacklabs.com");
       },
       networkCheckTimeout: 10000,
-      network_id: 4,
+      network_id: 80001,
       gas: 8000000,         // Gas sent with each transaction (default: ~6700000)
       // gasPrice: 20000000000,// 20 gwei (in wei) (default: 100 gwei)
       timeoutBlocks: 200,   // # of blocks before a deployment times out  (minimum/default: 50)
