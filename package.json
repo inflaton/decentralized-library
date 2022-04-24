@@ -13,6 +13,7 @@
     "deploy:meter": "truffle migrate --reset --network meter",
     "deploy:ropsten": "truffle migrate --reset --network ropsten",
     "deploy:rinkeby": "truffle migrate --reset --network rinkeby",
+    "deploy:rinkarby": "truffle migrate --reset --network rinkarby",
     "deploy:polygon": "truffle migrate --reset --network polygon",
     "deploy:extdev": "truffle migrate --config ./loom-config.js --reset --network extdev_plasma_us1",
     "gen:rinkeby-key": "node ./scripts/gen-eth-key.js rinkeby",
