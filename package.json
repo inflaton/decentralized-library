@@ -33,6 +33,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@openzeppelin/contracts": "^4.5.0",
     "@truffle/hdwallet-provider": "^2.0.0",
     "bip39": "^3.0.2",
     "bn.js": "4.11.8",

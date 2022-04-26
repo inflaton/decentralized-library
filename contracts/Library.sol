@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.1;
 
 abstract contract Context {
     address public owner;
@@ -154,6 +154,11 @@ contract Library is Context {
      * @dev Send TRX to the book's owner.
      */
     function _sendRentalFee(address receiver, uint256 value) internal {
+        // if (receiver != owner) {
+        //     uint256 fee = (value * 3) / 10;
+        //     payable(address(uint160(owner))).transfer(value);
+        //     value -= fee;
+        // }
         payable(address(uint160(receiver))).transfer(value);
     }
 
