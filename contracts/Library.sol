@@ -1,6 +1,8 @@
 //SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.1;
 
+import "./NftContract.sol";
+
 abstract contract Context {
     address public owner;
 
@@ -55,6 +57,7 @@ contract Library is Context {
         uint256 startTime; // start time, in timestamp
         uint256 endTime; // end time, in timestamp
         address borrower; // borrower's address
+        uint256 tokenId;
     }
 
     uint256 public trackingId;
@@ -109,9 +112,28 @@ contract Library is Context {
 
         _createTracking(_bookId, startTime, endTime);
 
-        emit NewRental(_bookId, trackingId++);
+        emit NewRental(_bookId, trackingId++, _msgSender());
 
         return true;
+    }
+
+    function mintNFT(
+        address nftContractAddr,
+        uint256 _trackingId,
+        string memory tokenURI
+    ) public returns (uint256) {
+        Tracking storage tracking = trackings[_trackingId];
+        require(
+            isOwner() || tracking.borrower == _msgSender(),
+            "Unauthorized to mint NFT"
+        );
+
+        if (tracking.tokenId == 0) {
+            NftContract nftContract = NftContract(nftContractAddr);
+            tracking.tokenId = nftContract.mintNFT(_msgSender(), tokenURI);
+        }
+
+        return tracking.tokenId;
     }
 
     /**
@@ -154,11 +176,6 @@ contract Library is Context {
      * @dev Send TRX to the book's owner.
      */
     function _sendRentalFee(address receiver, uint256 value) internal {
-        // if (receiver != owner) {
-        //     uint256 fee = (value * 3) / 10;
-        //     payable(address(uint160(owner))).transfer(value);
-        //     value -= fee;
-        // }
         payable(address(uint160(receiver))).transfer(value);
     }
 
@@ -174,7 +191,8 @@ contract Library is Context {
             _bookId,
             startTime,
             endTime,
-            _msgSender()
+            _msgSender(),
+            0
         );
 
         Book storage book = books[_bookId];
@@ -192,7 +210,11 @@ contract Library is Context {
      * @dev Emitted when a new book rental is made.
      * Note `trackingId` and `bookId` start from 0.
      */
-    event NewRental(uint256 indexed bookId, uint256 indexed trackingId);
+    event NewRental(
+        uint256 indexed bookId,
+        uint256 indexed trackingId,
+        address indexed borrower
+    );
 
     /**
      * @dev Emitted when a book is deleted from the library.
