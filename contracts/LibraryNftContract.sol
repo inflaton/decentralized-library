@@ -12,7 +12,7 @@ contract LibraryNftContract is NftContract, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
-    constructor() ERC721("LibraryNftContract", "LIBNFT") {}
+    constructor() ERC721("My Bookshelf", "LIBNFT") {}
 
     function mintNFT(address recipient, string memory tokenURI)
         public

@@ -41,6 +41,7 @@ abstract contract Context {
 
 contract Library is Context {
     struct Book {
+        uint256 id;
         string name;
         string description;
         bool valid; // false if been borrowed
@@ -64,6 +65,26 @@ contract Library is Context {
 
     mapping(uint256 => Tracking) public trackings;
 
+    function totalBooks(bool validOnly) public view returns (Book[] memory) {
+        uint256 count = 0;
+        for (uint256 i = 0; i < bookId; i++) {
+            Book memory book = books[i];
+            if (!validOnly || book.valid) {
+                count++;
+            }
+        }
+
+        Book[] memory result = new Book[](count);
+        count = 0;
+        for (uint256 i = 0; i < bookId; i++) {
+            Book memory book = books[i];
+            if (!validOnly || book.valid) {
+                result[count++] = book;
+            }
+        }
+        return result;
+    }
+
     /**
      * @dev Add a Book with predefined `name`, `description` and `price`
      * to the library.
@@ -77,7 +98,14 @@ contract Library is Context {
         string memory description,
         uint256 price
     ) public returns (bool success) {
-        Book memory book = Book(name, description, true, price, _msgSender());
+        Book memory book = Book(
+            bookId,
+            name,
+            description,
+            true,
+            price,
+            _msgSender()
+        );
 
         books[bookId] = book;
 
@@ -131,6 +159,7 @@ contract Library is Context {
         if (tracking.tokenId == 0) {
             NftContract nftContract = NftContract(nftContractAddr);
             tracking.tokenId = nftContract.mintNFT(_msgSender(), tokenURI);
+            emit NewNFT(tracking.bookId, _trackingId, tracking.tokenId);
         }
 
         return tracking.tokenId;
@@ -214,6 +243,12 @@ contract Library is Context {
         uint256 indexed bookId,
         uint256 indexed trackingId,
         address indexed borrower
+    );
+
+    event NewNFT(
+        uint256 indexed bookId,
+        uint256 indexed trackingId,
+        uint256 indexed tokenId
     );
 
     /**
