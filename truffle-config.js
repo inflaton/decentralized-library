@@ -101,7 +101,10 @@ module.exports = {
     polygon: {
       provider: () => {
         return new PrivateKeyProvider(process.env.POLYGON_PRIVATE_KEY,
-          "https://matic-mumbai.chainstacklabs.com");
+          // "https://matic-mumbai.chainstacklabs.com"
+          "https://rpc-mumbai.maticvigil.com"
+          // "https://matic-testnet-archive-rpc.bwarelabs.com"
+        );
       },
       networkCheckTimeout: 10000,
       network_id: 80001,
